@@ -1,0 +1,53 @@
+package com.example.girlsshoper.comman
+
+import com.example.girlsshoper.domain.module.categoryModel
+import com.example.girlsshoper.domain.module.productModel
+import com.example.girlsshoper.domain.module.userModel
+
+data class getAllCategoryTYpe(
+    val isLoading : Boolean = false,
+    val isData : List<categoryModel>? = emptyList(),
+    val isError : String? = null
+)
+
+data class getAllProductType(
+    val isLoading : Boolean = false,
+    val isData : List<productModel>? = emptyList(),
+    val isError : String? = null
+)
+
+data class registerUserTYpe(
+    val isLoading : Boolean = false,
+    val isData : String? = null,
+    val isError : String? = null
+)
+data class loginWithEmailPassType(
+    val isLoading : Boolean = false,
+    val isData : String? = null,
+    val isError : String? = null
+)
+
+data class getProductByIDType(
+    val isLoading : Boolean = false,
+    val isData : productModel? = null,
+    val isError : String? = null
+)
+
+data class getSpacUserByIdType(
+    val isLoading : Boolean = false,
+    val isData : userModel? = null,
+    val isError : String? = null
+)
+
+data class searchProductType(
+    val isLoading : Boolean = false,
+    val isData : List<productModel>? = null,
+    val isError : String? = null
+)
+
+data class loadhomeScreenType(
+    val isLoading : Boolean = false,
+    val isError : String? = null,
+    val isCaregoryData : List<categoryModel>? = null,
+    val isProductData : List<productModel>? = null
+)
