@@ -1,10 +1,12 @@
 package com.example.girlsshoper.data.repoImpl
 
 import android.util.Log
+import com.example.girlsshoper.comman.BANNER_POSTS
 import com.example.girlsshoper.comman.CATEGORY
 import com.example.girlsshoper.comman.MainState
 import com.example.girlsshoper.comman.PRODUCTS
 import com.example.girlsshoper.comman.USERS
+import com.example.girlsshoper.domain.module.bannerPostsModel
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
 import com.example.girlsshoper.domain.module.userModel
@@ -27,7 +29,9 @@ class repoImpl @Inject constructor(
         trySend(MainState.Loading)
         firebaseFirestore.collection(CATEGORY).get().addOnSuccessListener {
             val categoryData = it.documents.mapNotNull {
-                it.toObject(categoryModel::class.java)
+                val category = it.toObject(categoryModel::class.java)
+                category?.categoryId = it.id
+                category
             }
             trySend(MainState.Success(categoryData))
         }.addOnFailureListener {
@@ -167,8 +171,39 @@ class repoImpl @Inject constructor(
 
 
 
-    override fun searchCategoryByQuery(searchQuery: String): Flow<MainState<List<categoryModel>>> {
-        TODO("Not yet implemented")
+    override fun searchCategoryByQuery(searchCategoryQuery: String): Flow<MainState<List<categoryModel>>> = callbackFlow {
+        trySend(MainState.Loading)
+        firebaseFirestore.collection(CATEGORY).orderBy("name")
+            .startAt(searchCategoryQuery).get()
+            .addOnSuccessListener {
+                val searchCategorys = it.documents.mapNotNull {
+                    it.toObject(categoryModel::class.java)?.apply {
+                        categoryId = it.id
+                    }
+                }
+                trySend(MainState.Success(searchCategorys))
+            }.addOnFailureListener {
+                trySend(MainState.Error(it.message.toString()))
+            }
+        awaitClose {
+            close()
+        }
+
+    }
+
+    override fun getBannerPostsRepo(): Flow<MainState<List<bannerPostsModel>>> = callbackFlow {
+        trySend(MainState.Loading)
+        firebaseFirestore.collection(BANNER_POSTS).get().addOnSuccessListener {
+            val bannnerData = it.documents.mapNotNull {
+                it.toObject(bannerPostsModel::class.java)
+            }
+            trySend(MainState.Success(bannnerData))
+        }.addOnFailureListener {
+            trySend(MainState.Error(it.message.toString()))
+        }
+        awaitClose {
+            close()
+        }
     }
 
     override suspend fun updateFromToken(userID : String){
@@ -181,7 +216,24 @@ class repoImpl @Inject constructor(
 
     }
 
+    override fun getProductByCategory(categoryName: String): Flow<MainState<List<productModel>>> = callbackFlow {
+        trySend(MainState.Loading)
+        firebaseFirestore.collection(PRODUCTS)
+            .whereEqualTo("category", categoryName).get().addOnSuccessListener {
+                val product = it.documents.mapNotNull {
+                    it.toObject(productModel::class.java)?.apply {
+                        productId = it.id
+                    }
+                }
+                trySend(MainState.Success(product))
+            }.addOnFailureListener {
+                trySend(MainState.Error(it.message.toString()))
+            }
+        awaitClose {
+            close()
+        }
 
+    }
 
 
 }

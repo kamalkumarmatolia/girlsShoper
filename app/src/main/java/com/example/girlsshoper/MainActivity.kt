@@ -43,25 +43,27 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
         co.setKeyID(R.string.rzr_key.toString())
     }
 
-    fun startPayment(
-        name : String,
-        payableAmount : Int
-    ) {
-        /*
-        *  You need to pass the current activity to let Razorpay create CheckoutActivity
-        * */
-        val activity: Activity = this
+
+     fun startPayment(
+         productName : String,
+         payableAmount : Int,
+         userEmail : String,
+         userName : String,
+         userNumbar : String
+     ) {
+
+        val activity:Activity = this
         val co = Checkout()
 
         try {
             val options = JSONObject()
-            options.put("name",name)
-            options.put("description","Demoing Charges")
+            options.put("name","GirlsShoper")
+            options.put("order",productName)
             //You can omit the image option to fetch the image from the Dashboard
-            options.put("image","https://images.search.yahoo.com/images/view;_ylt=Awr48ncrzU1nHPs3OFqJzbkF;_ylu=c2VjA3NyBHNsawNpbWcEb2lkAzQ2MzBkNzA0MTFmNTE2MThkYjY5Y2QyMWI2ZDMxYWVhBGdwb3MDMTMEaXQDYmluZw--?back=https%3A%2F%2Fimages.search.yahoo.com%2Fsearch%2Fimages%3Fp%3Dindia%2Bekart%2Blogo%26type%3DE210US885G0%26fr%3Dmcafee%26fr2%3Dpiv-web%26tab%3Dorganic%26ri%3D13&w=512&h=512&imgurl=play-lh.googleusercontent.com%2FVmdjZwbYHdiNyWnbZbbSSq78y-XP0QTY-9uH7cI09ZKijLQJhQx3fnKWG9nhdWJj5g&rurl=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dcom.apextiming.ekart&size=63KB&p=india+ekart+logo&oid=4630d70411f51618db69cd21b6d31aea&fr2=piv-web&fr=mcafee&tt=eKart+-+Apps+on+Google+Play&b=0&ni=21&no=13&ts=&tab=organic&sigr=jzIZLWtPlQmM&sigb=GnlZx6Gr_nfC&sigi=MvcjfedGHhK.&sigt=khZBK.bOUbYx&.crumb=uY3/0xJzLvg&fr=mcafee&fr2=piv-web&type=E210US885G0")
-            options.put("theme.color", MainColor);
+            options.put("image","https://play-lh.googleusercontent.com/VmdjZwbYHdiNyWnbZbbSSq78y-XP0QTY-9uH7cI09ZKijLQJhQx3fnKWG9nhdWJj5g")
+            options.put("theme.color", "#3399cc");
             options.put("currency","INR");
-            options.put("amount",payableAmount)//pass amount in currency subunits
+            options.put("amount",payableAmount*100)//pass amount in currency subunits
 
             val retryObj = JSONObject();
             retryObj.put("enabled", true);
@@ -69,8 +71,9 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
             options.put("retry", retryObj);
 
             val prefill = JSONObject()
-            prefill.put("email","aman.nittc@gmail.com")
-            prefill.put("contact","8294888127")
+            prefill.put("userName", userName)
+            prefill.put("email",userEmail)
+            prefill.put("contact",userNumbar)
 
             options.put("prefill",prefill)
             co.open(activity,options)
@@ -87,5 +90,7 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
     override fun onPaymentError(p0: Int, p1: String?) {
         TODO("Not yet implemented")
     }
+
+
 }
 

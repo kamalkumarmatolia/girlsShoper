@@ -48,14 +48,19 @@ fun categoryCard(
     imageUrl : String,
     categoryName : String = "Category",
     navController: NavHostController,
-    iconSize : Int = 70
+    iconSize : Int = 70,
+    onClick : () -> Unit
 ) {
 
     val context = LocalContext.current
     Log.d("caimage" , imageUrl)
 
     Column(
-        modifier = Modifier.width(iconSize.dp),
+        modifier = Modifier
+            .width(iconSize.dp)
+            .clickable{
+                onClick()
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -67,10 +72,7 @@ fun categoryCard(
                     width = 1.dp,
                     color = Color.Black,
                     shape = CircleShape
-                )
-                .clickable{
-
-                },
+                ),
             contentAlignment = Alignment.Center
         ) {
 

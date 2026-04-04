@@ -6,21 +6,27 @@ import androidx.lifecycle.viewModelScope
 import com.example.girlsshoper.comman.MainState
 import com.example.girlsshoper.comman.getAllCategoryTYpe
 import com.example.girlsshoper.comman.getAllProductType
+import com.example.girlsshoper.comman.getBannerPostsType
+import com.example.girlsshoper.comman.getProductByCategoryType
 import com.example.girlsshoper.comman.getProductByIDType
 import com.example.girlsshoper.comman.getSpacUserByIdType
 import com.example.girlsshoper.comman.loadhomeScreenType
 import com.example.girlsshoper.comman.loginWithEmailPassType
 import com.example.girlsshoper.comman.registerUserTYpe
+import com.example.girlsshoper.comman.searchCategoryType
 import com.example.girlsshoper.comman.searchProductType
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
 import com.example.girlsshoper.domain.module.userModel
 import com.example.girlsshoper.domain.useCase.GetAllCategoryUseCase
 import com.example.girlsshoper.domain.useCase.GetAllProductUseCase
+import com.example.girlsshoper.domain.useCase.GetBannerPostUseCase
+import com.example.girlsshoper.domain.useCase.GetProductByCategoryUseCase
 import com.example.girlsshoper.domain.useCase.GetProductByIDUseCase
 import com.example.girlsshoper.domain.useCase.GetSpacUserByIdUseCase
 import com.example.girlsshoper.domain.useCase.LoginWithEmailPassUseCase
 import com.example.girlsshoper.domain.useCase.RegisterUserUseCase
+import com.example.girlsshoper.domain.useCase.SearchCategoryUseCase
 import com.example.girlsshoper.domain.useCase.SearchProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.scopes.ViewModelScoped
@@ -44,6 +50,9 @@ class myVIewModel @Inject constructor(
     private val GetProductByIDUseCase: GetProductByIDUseCase,
     private val GetSpacUserByIdUseCase: GetSpacUserByIdUseCase,
     private val SearchProductUseCase : SearchProductUseCase,
+    private val GetBannerPostUseCase : GetBannerPostUseCase,
+    private val SearchCategoryUseCase : SearchCategoryUseCase,
+    private val GetProductByCategoryUseCase : GetProductByCategoryUseCase
 
 
     ) : ViewModel(){
@@ -63,22 +72,30 @@ class myVIewModel @Inject constructor(
     val getProductByIDState = _getProductByIDState.asStateFlow()
     private val _getSpacUserByIdState = MutableStateFlow(getSpacUserByIdType())
     val getSpacUserByIdState = _getSpacUserByIdState.asStateFlow()
-
     private val _searchProductState = MutableStateFlow(searchProductType())
     val searchProductState = _searchProductState.asStateFlow()
+    private val _searchCategoryState = MutableStateFlow(searchCategoryType())
+    val searchCategoryState = _searchCategoryState.asStateFlow()
+
+    private val _getProductByCategorystate = MutableStateFlow(getAllProductType())
+    val getProductByCategorystate = _getProductByCategorystate.asStateFlow()
+
+
 
 
     fun loadhomeScreenModel(){
         viewModelScope.launch(Dispatchers.IO) {
             combine(
                 GetAllCategoryUseCase.getAllCategoryUseCase(),
-                GetAllProductUseCase.getAllProductUseCase()
-            ){ categoryResult , productResult ->
+                GetAllProductUseCase.getAllProductUseCase(),
+                GetBannerPostUseCase.getBannerPostUseCase()
+            ){ categoryResult , productResult, bannerPostResult ->
                 when{
-                    categoryResult is MainState.Success && productResult is MainState.Success -> {
+                    categoryResult is MainState.Success && productResult is MainState.Success && bannerPostResult is MainState.Success-> {
                         loadhomeScreenType(
                             isCaregoryData = categoryResult.data,
-                            isProductData = productResult.data
+                            isProductData = productResult.data,
+                            isBannerPostData = bannerPostResult.data
                         )
                     }
                     categoryResult is MainState.Error -> {
@@ -86,6 +103,9 @@ class myVIewModel @Inject constructor(
                     }
                     productResult is MainState.Error -> {
                         loadhomeScreenType(isError = productResult.message)
+                    }
+                    bannerPostResult is MainState.Error -> {
+                        loadhomeScreenType(isError = bannerPostResult.message)
                     }
 
                     else -> {
@@ -188,6 +208,7 @@ class myVIewModel @Inject constructor(
         }
     }
 
+
     fun getSpacUserByIdVModel(userId : String){
         viewModelScope.launch {
             GetSpacUserByIdUseCase.getSpacUserByIdUseCase(userId = userId).collectLatest {
@@ -200,14 +221,33 @@ class myVIewModel @Inject constructor(
         }
     }
 
+    fun getProductByCategoryVModel(categoryName : String){
+        viewModelScope.launch {
+            GetProductByCategoryUseCase.getProductByCategoryUseCase(categoryName = categoryName).collectLatest {
+                when(it){
+                    is MainState.Loading -> { _getProductByCategorystate.value = getAllProductType(isLoading = true) }
+                    is MainState.Success -> { _getProductByCategorystate.value = getAllProductType(isData = it.data) }
+                    is MainState.Error -> { _getProductByCategorystate.value = getAllProductType(isError = it.message) }
+                }
+            }
+        }
+    }
+
     val _searchQuery = MutableStateFlow("")
+    val _categorySearchQuery = MutableStateFlow("")
     fun onSearchQueryChange(searchQuery: String){
         _searchQuery.value = searchQuery
     }
+    fun onCategorySearchQueryChange(categoryQuery: String){
+        _categorySearchQuery.value = categoryQuery
+    }
+
+
+
 
     fun onSearchQuery(){
         viewModelScope.launch {
-            _searchQuery.debounce(500L).distinctUntilChanged()
+            _searchQuery.debounce(300L).distinctUntilChanged()
                 .collectLatest {
                     if (it.isNotEmpty()){
                         searchProductVModel(searchQuery = it)
@@ -215,6 +255,21 @@ class myVIewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    fun onCategorySearchQuery(){
+        viewModelScope.launch {
+            _categorySearchQuery.debounce { 500L }.distinctUntilChanged()
+                .collectLatest {
+                    if (it.isNotEmpty()){
+                        searchCategoryModel(searchCategoryQuery = it)
+                    }
+                }
+        }
+    }
+
+    init {
+        onSearchQuery()
     }
 
     fun searchProductVModel(searchQuery: String){
@@ -228,6 +283,17 @@ class myVIewModel @Inject constructor(
             }
         }
 
+    }
+    fun searchCategoryModel(searchCategoryQuery :String){
+        viewModelScope.launch {
+            SearchCategoryUseCase.searchCategoryUseCase(searchCategoryQuery = searchCategoryQuery).collectLatest {
+                when(it){
+                    is MainState.Loading -> {_searchCategoryState.value = searchCategoryType(isLoading = true) }
+                    is MainState.Success -> {_searchCategoryState.value = searchCategoryType(isData = it.data) }
+                    is MainState.Error -> {_searchCategoryState.value = searchCategoryType(isError = it.message) }
+                }
+            }
+        }
     }
 
 

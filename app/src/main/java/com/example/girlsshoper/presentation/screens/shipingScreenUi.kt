@@ -265,8 +265,11 @@ fun shipingScreenUi(
             text = "Continue to Shipping",
             onClick = {
                 activity?.startPayment(
-                    name = "product",
-                    payableAmount = 100
+                    productName = "product",
+                    payableAmount = 100,
+                    userEmail = userEmail,
+                    userName = firstName,
+                    userNumbar = phoneNumber
                 )
             },
             containerColor = GrayColor,

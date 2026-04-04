@@ -1,6 +1,7 @@
 package com.example.girlsshoper.domain.repo
 
 import com.example.girlsshoper.comman.MainState
+import com.example.girlsshoper.domain.module.bannerPostsModel
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
 import com.example.girlsshoper.domain.module.userModel
@@ -20,10 +21,11 @@ interface repo {
     fun getSpacUserById(userId : String) : Flow<MainState<userModel>>
     fun updateUserProfile(userData : userModel) : Flow<MainState<String>>
     fun searchProductByQuery(searchQuery : String) : Flow<MainState<List<productModel>>>
-    fun searchCategoryByQuery(searchQuery : String) : Flow<MainState<List<categoryModel>>>
+    fun searchCategoryByQuery(searchCategoryQuery : String) : Flow<MainState<List<categoryModel>>>
+    fun getBannerPostsRepo() : Flow<MainState<List<bannerPostsModel>>>
 
     suspend fun updateFromToken(userID : String)
-
+    fun getProductByCategory(categoryName : String)  : Flow<MainState<List<productModel>>>
 
 
 

@@ -1,5 +1,6 @@
 package com.example.girlsshoper.comman
 
+import com.example.girlsshoper.domain.module.bannerPostsModel
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
 import com.example.girlsshoper.domain.module.userModel
@@ -12,7 +13,7 @@ data class getAllCategoryTYpe(
 
 data class getAllProductType(
     val isLoading : Boolean = false,
-    val isData : List<productModel>? = emptyList(),
+    val isData : List<productModel>? = null,
     val isError : String? = null
 )
 
@@ -39,6 +40,12 @@ data class getSpacUserByIdType(
     val isError : String? = null
 )
 
+data class getProductByCategoryType(
+    val isLoading: Boolean = false,
+    val isData : List<productModel>? = null,
+    val isError : String? =  null
+)
+
 data class searchProductType(
     val isLoading : Boolean = false,
     val isData : List<productModel>? = null,
@@ -49,5 +56,16 @@ data class loadhomeScreenType(
     val isLoading : Boolean = false,
     val isError : String? = null,
     val isCaregoryData : List<categoryModel>? = null,
-    val isProductData : List<productModel>? = null
+    val isProductData : List<productModel>? = null,
+    val isBannerPostData : List<bannerPostsModel>? = null
+)
+data class searchCategoryType(
+    val isLoading: Boolean = false,
+    val isData: List<categoryModel>? = null,
+    val isError : String? = null
+)
+data class getBannerPostsType(
+    val isLoading: Boolean = false,
+    val isData: List<bannerPostsModel>? = null,
+    val isError: String? = null
 )

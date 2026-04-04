@@ -51,7 +51,7 @@ sealed class Routes{
     )
 
     @Serializable
-    object seemoreProduct
+    data class seemoreProduct(val refranceName : String? = null)
 
     @Serializable
     object seeAllCategoryScreen

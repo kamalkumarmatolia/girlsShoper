@@ -1,14 +1,8 @@
 package com.example.girlsshoper.presentation.navigation
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material.icons.filled.Home
@@ -18,10 +12,6 @@ import androidx.compose.material.icons.outlined.HeartBroken
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person2
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,16 +19,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
-import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
@@ -48,17 +33,12 @@ import com.example.girlsshoper.presentation.screens.loginScreenui
 import com.example.girlsshoper.presentation.screens.productDetailedScreenUi
 import com.example.girlsshoper.presentation.screens.profileScreenUi
 import com.example.girlsshoper.presentation.screens.seeAllCategoryUi
-import com.example.girlsshoper.presentation.screens.seemoreProductUi
+import com.example.girlsshoper.presentation.screens.moreProduct_filteredProduct
 import com.example.girlsshoper.presentation.screens.shipingScreenUi
 import com.example.girlsshoper.presentation.screens.shopingCartScreenUi
 import com.example.girlsshoper.presentation.screens.singUpScreenUi
-import com.example.girlsshoper.ui.theme.BlackColor
-import com.example.girlsshoper.ui.theme.MainColor
-import com.example.girlsshoper.ui.theme.PurpleGrey80
-import com.example.girlsshoper.ui.theme.WhiteColor
 
 import com.google.firebase.auth.FirebaseAuth
-import okhttp3.Route
 
 data class bottomnavigationItem(
     val name : String,
@@ -178,11 +158,14 @@ fun navApp(firebaseAuth: FirebaseAuth) {
                     )
                 }
                 composable<Routes.seemoreProduct> {
-                    seemoreProductUi(
-                        navcontroller = navController
+                    val data = it.toRoute<Routes.seemoreProduct>()
+                    moreProduct_filteredProduct(
+                        navcontroller = navController,
+                        refranceName = data.refranceName
                     )
 
                 }
+
 
 
             }

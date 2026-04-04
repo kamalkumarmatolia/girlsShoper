@@ -53,14 +53,18 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.storage)
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.firestore)
+
     implementation(libs.androidx.credentials)
     implementation(libs.androidx.credentials.play.services.auth)
     implementation(libs.googleid)
-    implementation(libs.firebase.messaging)
-    implementation(libs.firebase.firestore)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

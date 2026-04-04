@@ -54,11 +54,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.girlsshoper.comman.searchProductType
+import com.example.girlsshoper.domain.module.bannerPostsModel
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
 import com.example.girlsshoper.presentation.components.card.categoryCard
 import com.example.girlsshoper.presentation.components.card.eachProductViewCard
 import com.example.girlsshoper.presentation.components.card.productHomeShowCard
+import com.example.girlsshoper.presentation.components.eventSlider
 import com.example.girlsshoper.presentation.components.texture.outlineTextFieldComponent
 import com.example.girlsshoper.presentation.navigation.Routes
 import com.example.girlsshoper.presentation.viewModel.myVIewModel
@@ -87,11 +89,12 @@ fun homeScreenUi(
         loadhomeScreenState.value.isError != null -> {
             Text(text = loadhomeScreenState.value.isError!!)
         }
-        loadhomeScreenState.value.isCaregoryData != null && loadhomeScreenState.value.isProductData != null ->{
+        loadhomeScreenState.value.isCaregoryData != null && loadhomeScreenState.value.isProductData != null && loadhomeScreenState.value.isBannerPostData != null->{
             Log.d("categoryData", "homeScreen: ${loadhomeScreenState.value.isCaregoryData}")
             homeScreen(
                 getAllCategoryData = loadhomeScreenState.value.isCaregoryData!!,
                 getAllProductData = loadhomeScreenState.value.isProductData!!,
+                getALlBannerPostData = loadhomeScreenState.value.isBannerPostData!!,
                 navcontroller = navcontroller,
                 vIewModel = vIewModel
 
@@ -108,6 +111,7 @@ fun homeScreenUi(
 fun homeScreen(
     getAllCategoryData : List<categoryModel>,
     getAllProductData : List<productModel>,
+    getALlBannerPostData : List<bannerPostsModel>,
     navcontroller: NavHostController,
     vIewModel: myVIewModel
 
@@ -118,13 +122,16 @@ fun homeScreen(
     val searchProductState = vIewModel.searchProductState.collectAsStateWithLifecycle()
 
     Column(
-        modifier = Modifier.fillMaxSize().background(Color.White).verticalScroll(rememberScrollState()).padding(PaddingValues(horizontal = 18.5.dp))
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+            .padding(PaddingValues(horizontal = 18.5.dp))
 
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            verticalAlignment = Alignment.CenterVertically
         ) {
             outlineTextFieldComponent(
                 value = searchQuery.value,
@@ -132,14 +139,17 @@ fun homeScreen(
                     searchQuery.value = it
                     vIewModel.onSearchQueryChange(it) },
                 label = "sarch",
-                modifier = Modifier.weight(1.8f)
+                modifier = Modifier.weight(1.65f)
 
             )
             IconButton(
-                onClick = {}
+                onClick = {},
+                modifier = Modifier
+                    .size(36.dp)
+                    .weight(0.35f)
             ) {
                 Icon(
-                    modifier = Modifier.fillMaxSize().weight(0.2f),imageVector = Icons.Default.Notifications,contentDescription = null)
+                    modifier = Modifier.fillMaxSize(),imageVector = Icons.Default.Notifications,contentDescription = null)
             }
 
         }
@@ -148,7 +158,9 @@ fun homeScreen(
             Log.d("searchProduct", "homeScreen: ${searchProductState.value.isData}")
 
             LazyVerticalGrid(
-                modifier = Modifier.fillMaxWidth().weight(1f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -180,7 +192,7 @@ fun homeScreen(
 
         }else{
 
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -205,7 +217,7 @@ fun homeScreen(
                     }
                 )
             }
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(13.dp))
 
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
@@ -216,19 +228,17 @@ fun homeScreen(
                     categoryCard(
                         imageUrl = it.imageUrl,
                         categoryName = it.name,
-                        navController = navcontroller
+                        navController = navcontroller,
+                        onClick = {
+                            navcontroller.navigate(Routes.seemoreProduct(refranceName = it.name))
+                        }
                     )
 
                 }
             }
-            Image(
-                modifier = Modifier.fillMaxWidth().height(198.17.dp).background(Color.Yellow),
-                painter = painterResource(id = R.drawable.bannger_image_demo),
-                contentScale = ContentScale.Crop,
-                contentDescription = "bannerImage"
-            )
-
-            Spacer(modifier = Modifier.height(22.dp))
+            Spacer(Modifier.height(8.dp))
+            eventSlider(bannerPosts = getALlBannerPostData )
+            Spacer(Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -249,7 +259,7 @@ fun homeScreen(
                     fontWeight = FontWeight.SemiBold,
                     color = Color(0XFFF68B8B),
                     modifier = Modifier.clickable{
-                        navcontroller.navigate(Routes.seemoreProduct)
+                        navcontroller.navigate(Routes.seemoreProduct(refranceName = null))
                     }
                 )
             }
@@ -282,7 +292,6 @@ fun homeScreen(
                 }
 
             }
-
 
         }
     }

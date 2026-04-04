@@ -31,6 +31,7 @@ fun seemoreProductCard(
     productSize : List<Any>,
     productColor : List<productColorLists> ,
     productFinalPrice : String,
+    onClick : () -> Unit
 ) {
 
     Row(

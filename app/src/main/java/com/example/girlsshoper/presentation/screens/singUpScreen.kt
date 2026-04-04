@@ -186,7 +186,6 @@ fun singUpScreenUi(
             vIewModel.resetRegisterUserState()
 
 
-
         }
         registerUserState.value.isError != null -> {
             Toast.makeText(context, registerUserState.value.isError, Toast.LENGTH_SHORT).show()
