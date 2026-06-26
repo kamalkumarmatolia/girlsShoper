@@ -1,11 +1,10 @@
 package com.example.girlsshoper.presentation.screens
 
 import android.util.Log
-import androidx.annotation.Size
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,16 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBackIos
-import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +35,6 @@ import androidx.compose.runtime.LaunchedEffect
 import com.example.girlsshoper.R
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -47,8 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toColorLong
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -57,7 +50,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,6 +58,7 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.example.girlsshoper.domain.module.CartModel
 import com.example.girlsshoper.domain.module.productColorLists
 import com.example.girlsshoper.presentation.components.buttonStyle.coustomButton
 import com.example.girlsshoper.presentation.components.card.productSIzeCard
@@ -73,12 +66,10 @@ import com.example.girlsshoper.presentation.components.card.ratingCard
 import com.example.girlsshoper.presentation.components.quntitySelector
 import com.example.girlsshoper.presentation.navigation.Routes
 import com.example.girlsshoper.presentation.viewModel.myVIewModel
-import com.example.girlsshoper.presentation.viewModel.toColor
 import com.example.girlsshoper.ui.theme.BlackColor
 import com.example.girlsshoper.ui.theme.GrayColor
 import com.example.girlsshoper.ui.theme.MainColor
 import com.example.girlsshoper.ui.theme.WhiteColor
-import kotlin.collections.mutableListOf
 
 
 @Composable
@@ -89,6 +80,8 @@ fun productDetailedScreenUi(
 ) {
     val context = LocalContext.current
     val getSpacificProductState = vIewModel.getProductByIDState.collectAsState()
+    val addtoCartStage by vIewModel.addtoCartState.collectAsState()
+    val isProductinCartorNotState by vIewModel.isProductinCartorNotState.collectAsState()
     val pdrdata = getSpacificProductState.value.isData
     var quantity by remember { mutableStateOf(1) }
     var sizeSelected by rememberSaveable {
@@ -101,6 +94,16 @@ fun productDetailedScreenUi(
     LaunchedEffect(key1 = Unit) {
         vIewModel.getProductByIDVModel(productId = productId)
     }
+    LaunchedEffect(addtoCartStage.isData) {
+        if (addtoCartStage.isData != null){
+            Toast.makeText(context, "added to cart", Toast.LENGTH_SHORT).show()
+            vIewModel.isProductinCartorNotVModel(productId)
+        }
+    }
+    LaunchedEffect(key1 = Unit) {
+        vIewModel.isProductinCartorNotVModel(productId)
+    }
+
 
 
     when{
@@ -111,9 +114,14 @@ fun productDetailedScreenUi(
             ){ CircularProgressIndicator() }
         }
         getSpacificProductState.value.isData != null -> {
-            Box(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())) {
 
-                Box(modifier = Modifier.fillMaxWidth().height(500.dp).align(Alignment.TopCenter)){
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(500.dp)
+                    .align(Alignment.TopCenter)){
                     AsyncImage(
                         modifier = Modifier.fillMaxSize(),
                         model = ImageRequest.Builder(context)
@@ -130,7 +138,10 @@ fun productDetailedScreenUi(
                         onClick = {
                             navcontroller.navigate(Routes.homeScreen)
                         },
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 27.dp).size(28.dp).align(Alignment.TopStart),
+                        modifier = Modifier
+                            .padding(horizontal = 14.dp, vertical = 27.dp)
+                            .size(28.dp)
+                            .align(Alignment.TopStart),
                         colors = IconButtonDefaults.iconButtonColors(containerColor = Color.White),
 
                     ) {
@@ -146,9 +157,14 @@ fun productDetailedScreenUi(
 
 
                 }
-                Column(modifier = Modifier.fillMaxWidth().padding(top = 390.dp).align(Alignment.BottomCenter)){
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 390.dp)
+                    .align(Alignment.BottomCenter)){
                     Column(
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp)
                     ) {
                         Text(
                             text = pdrdata?.productTitle ?: "",
@@ -205,7 +221,9 @@ fun productDetailedScreenUi(
                         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
 
                             LazyRow(
-                                modifier = Modifier.fillMaxWidth().weight(0.7f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.7f),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 items(pdrdata?.productSize!!) {
@@ -220,7 +238,9 @@ fun productDetailedScreenUi(
                                 }
                             }
                             Row(
-                                modifier = Modifier.fillMaxWidth().weight(0.4f),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(0.4f),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
@@ -283,7 +303,9 @@ fun productDetailedScreenUi(
 
 
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(top = 5.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 5.dp)
 
                         ) {
                             Text(
@@ -316,8 +338,31 @@ fun productDetailedScreenUi(
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             coustomButton(
-                                text = "Add to cart",
-                                onClick = {},
+                                text = when (isProductinCartorNotState.isData) {
+                                    null -> "Loading..."
+                                    true -> "Go to cart"
+                                    false -> "Add to cart"
+                                },
+                                onClick = {
+                                    if (pdrdata != null && isProductinCartorNotState.isData != null){
+                                        vIewModel.addtoCartVModel(
+                                            cartModel = CartModel(
+                                                productId = productId,
+                                                productTitle = pdrdata?.productTitle ?: "",
+                                                price = pdrdata?.price ?: "" ,
+                                                imageUrl = pdrdata?.imageUrl ?: "",
+                                                quantity = quantity,
+                                                productSize = sizeSelected,
+                                                productColor = colorSelected?.colorCode ?: "",
+                                                category = pdrdata?.category ?: ""
+                                            )
+
+                                        )
+                                    }else{
+                                        Toast.makeText(context, "try again", Toast.LENGTH_SHORT).show()
+                                    }
+
+                                },
                                 containerColor = GrayColor
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -381,13 +426,16 @@ fun colorSelector(
     Box(
         modifier = Modifier
             .size(38.dp)
-            .background(Color(android.graphics.Color.parseColor(colorItem.colorCode)), RoundedCornerShape(6.dp))
+            .background(
+                Color(android.graphics.Color.parseColor(colorItem.colorCode)),
+                RoundedCornerShape(6.dp)
+            )
             .border(
                 width = 2.dp,
-                color = if (colorSelected) Color(0xFFF68B8B) else  WhiteColor,
+                color = if (colorSelected) Color(0xFFF68B8B) else WhiteColor,
                 shape = RoundedCornerShape(6.dp)
             )
-            .clickable{
+            .clickable {
                 onClick()
             }
     )

@@ -23,9 +23,8 @@ import com.example.girlsshoper.domain.module.productColorLists
 fun shopingCartCard(
     imageUrl : String,
     productTitle :String,
-    wenderName : String,
-    productSize : List<String>,
-    productColor : List<productColorLists>,
+    productSize : String,
+    productColor : String,
     productFinalPrice : String,
     productQUntity : Int
 ) {
@@ -37,9 +36,9 @@ fun shopingCartCard(
         eachProductViewCard(
             imageUrl = imageUrl,
             productTitle = productTitle,
-            wenderName = wenderName,
-            productSize = productSize,
-            productColor = productColor
+            productcolorCodeOnly = productColor,
+            singleProductSize = productSize,
+            checkerScreen = null
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(

@@ -1,5 +1,6 @@
 package com.example.girlsshoper.presentation.components.card
 
+import androidx.annotation.Nullable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,9 +49,12 @@ import okio.ByteString.Companion.decodeHex
 fun eachProductViewCard(
     imageUrl: String,
     productTitle : String,
-    wenderName : String,
-    productSize : List<Any>,
-    productColor : List<productColorLists> = emptyList()
+    wenderName : String = "",
+    productSize : List<Any> = emptyList(),
+    productColor : List<productColorLists> = emptyList(),
+    productcolorCodeOnly : String = "",
+    singleProductSize : String = "",
+    checkerScreen : String? = ""
 ) {
     val context = LocalContext.current
 
@@ -98,58 +102,79 @@ fun eachProductViewCard(
 
 
 
-            Text(
-                text = wenderName,
-                fontSize = 11.sp,
-                lineHeight = 13.5.sp,
-                color = DarkGrayColor,
-                fontFamily = FontFamily(Font(R.font.montserrat_regular))
-            )
+            if (checkerScreen != null){
+                Text(
+                    text = wenderName,
+                    fontSize = 11.sp,
+                    lineHeight = 13.5.sp,
+                    color = DarkGrayColor,
+                    fontFamily = FontFamily(Font(R.font.montserrat_regular))
+                )
 
-            LazyRow(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    Text(
-                        text = "Size: ",
-                        fontSize = 11.sp
-                    )
-                }
-                items(productSize){
-                    Text(
-                        text = "${it}, ",
-                        fontSize = 11.sp
-                    )
-                }
-
-            }
-            LazyRow(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-
-                item {
-                    Text(
-                        text = "Color: ",
-                        style = TextStyle(
-                            fontSize = 11.sp,
-                            color = Color(0xFF333333)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    item {
+                        Text(
+                            text = "Size: ",
+                            fontSize = 11.sp
                         )
-                    )
-                }
-
-                items(productColor){
-                    Box(
-                        modifier = Modifier
-                            .size(14.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(it.colorCode.toColor())
-                    )
+                    }
+                    items(productSize){
+                        Text(
+                            text = "${it}, ",
+                            fontSize = 11.sp
+                        )
+                    }
 
                 }
 
+
+                LazyRow(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+
+                    item {
+                        Text(
+                            text = "Color: ",
+                            style = TextStyle(
+                                fontSize = 11.sp,
+                                color = Color(0xFF333333)
+                            )
+                        )
+                    }
+
+                    items(productColor){
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(it.colorCode.toColor())
+                        )
+
+                    }
+
+
+                }
+
+            }else {
+
+                Text(
+                    text = singleProductSize,
+                    fontSize = 11.sp
+                )
+
+                Box(
+                    modifier = Modifier
+                        .size(14.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(productcolorCodeOnly.toColor())
+                )
 
             }
+
+
 
         }
 

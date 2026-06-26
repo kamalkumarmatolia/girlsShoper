@@ -1,6 +1,8 @@
 package com.example.girlsshoper.domain.repo
 
+import android.net.Uri
 import com.example.girlsshoper.comman.MainState
+import com.example.girlsshoper.domain.module.CartModel
 import com.example.girlsshoper.domain.module.bannerPostsModel
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
@@ -26,6 +28,13 @@ interface repo {
 
     suspend fun updateFromToken(userID : String)
     fun getProductByCategory(categoryName : String)  : Flow<MainState<List<productModel>>>
+    fun addtoCart(cartModel: CartModel) : Flow<MainState<String>>
+    fun removeFromCart(productid : String) : Flow<MainState<String>>
+    fun updateCartQuantity(productid : String, increses : Boolean) : Flow<MainState<String>>
+    fun isProductinCartorNot(productid: String) : Flow<MainState<Boolean>>
+    fun getCartProduct() : Flow<MainState<List<CartModel>>>
+    fun updateUserInfo(userModel: userModel) : Flow<MainState<String>>
+    fun changeUserImage(imageUri : Uri) : Flow<MainState<String>>
 
 
 

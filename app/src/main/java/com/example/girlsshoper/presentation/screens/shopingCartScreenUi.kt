@@ -46,11 +46,11 @@ fun shopingCartScreenUi(
     navcontroller: NavHostController
 ) {
 
-    val getAllCartproductState = vIewModel.getAllProductState.collectAsState()
+    val getAllCartproductState = vIewModel.getCartProductState.collectAsState()
     val data = getAllCartproductState.value.isData ?: emptyList()
 
     LaunchedEffect(Unit) {
-        vIewModel.getAllProductVModel()
+        vIewModel.getCartProductVModel()
     }
 
     Box(
@@ -143,11 +143,10 @@ fun shopingCartScreenUi(
                             shopingCartCard(
                                 imageUrl = it.imageUrl,
                                 productTitle = it.productTitle,
-                                wenderName = it.wenderName,
                                 productSize = it.productSize,
                                 productColor = it.productColor,
-                                productFinalPrice = it.finalPrice,
-                                productQUntity = it.abalibilibalUnits
+                                productFinalPrice = it.price,
+                                productQUntity = it.quantity
                             )
 
                         }

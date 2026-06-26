@@ -1,17 +1,22 @@
 package com.example.girlsshoper.data.repoImpl
 
+import android.net.Uri
 import android.util.Log
 import com.example.girlsshoper.comman.BANNER_POSTS
 import com.example.girlsshoper.comman.CATEGORY
 import com.example.girlsshoper.comman.MainState
 import com.example.girlsshoper.comman.PRODUCTS
+import com.example.girlsshoper.comman.PRODUCT_CART
+import com.example.girlsshoper.comman.SPACIFICUSER_CART
 import com.example.girlsshoper.comman.USERS
+import com.example.girlsshoper.domain.module.CartModel
 import com.example.girlsshoper.domain.module.bannerPostsModel
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
 import com.example.girlsshoper.domain.module.userModel
 import com.example.girlsshoper.domain.repo.repo
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.channels.awaitClose
@@ -232,6 +237,148 @@ class repoImpl @Inject constructor(
         awaitClose {
             close()
         }
+
+    }
+
+    private fun getCartRef() =
+         firebaseFirestore.collection(PRODUCT_CART)
+            .document(firebaseAuth.currentUser?.uid ?: "")
+            .collection(SPACIFICUSER_CART)
+
+
+    override fun addtoCart(cartModel: CartModel): Flow<MainState<String>> = callbackFlow {
+        trySend(MainState.Loading)
+        val docRef = getCartRef().document(cartModel.productId)
+        docRef.get().addOnSuccessListener { snapShot ->
+            if (snapShot.exists()){
+                val existing = snapShot.toObject(CartModel::class.java)
+                val newQty = (existing?.quantity ?: 0) + 1
+
+                docRef.update("quantity", newQty)
+                    .addOnSuccessListener {
+                        trySend(MainState.Success("quantity Updated"))
+                        close()
+                    }
+                    .addOnFailureListener {
+                        trySend(MainState.Error(it.message.toString()))
+                        close()
+                    }
+
+            }else {
+                docRef.set(cartModel)
+                    .addOnSuccessListener {
+                        trySend(MainState.Success("Added to cart"))
+                        close()
+                    }
+                    .addOnFailureListener {
+                        trySend(MainState.Error(it.message.toString()))
+                        close()
+                    }
+
+            }
+        }.addOnFailureListener {
+            trySend(MainState.Error(it.message.toString()))
+            close()
+        }
+        awaitClose {
+            close()
+        }
+
+
+    }
+
+    override fun removeFromCart(productid: String): Flow<MainState<String>> = callbackFlow {
+        trySend(MainState.Loading)
+        getCartRef().document(productid)
+            .delete()
+            .addOnSuccessListener {
+                trySend(MainState.Success("delete successfully"))
+                close()
+            }
+            .addOnFailureListener {
+                trySend(MainState.Error(it.message.toString()))
+                close()
+            }
+        awaitClose {
+            close()
+        }
+
+    }
+
+    override fun updateCartQuantity(productid: String, increses : Boolean): Flow<MainState<String>> = callbackFlow {
+        trySend(MainState.Loading)
+        val docRef = getCartRef().document(productid)
+        docRef.get().addOnSuccessListener { snapShot ->
+            val current = snapShot.toObject(CartModel::class.java)
+            if (current != null){
+                val newQty = if (increses){
+                    current.quantity + 1
+                }else {
+                    (current.quantity - 1).coerceAtLeast(1)
+                }
+                docRef.update("quantity", newQty)
+                    .addOnSuccessListener {
+                        trySend(MainState.Success("Quantity Updated"))
+                        close()
+                    }
+                    .addOnFailureListener {
+                        trySend(MainState.Error(it.message.toString()))
+                        close()
+                    }
+            }
+        }.addOnFailureListener {
+            trySend(MainState.Error(it.message.toString()))
+            close()
+        }
+        awaitClose {
+            close()
+        }
+
+    }
+
+    override fun isProductinCartorNot(productid: String): Flow<MainState<Boolean>> = callbackFlow {
+        trySend(MainState.Loading)
+        getCartRef().document(productid)
+            .get()
+            .addOnSuccessListener {
+                trySend(MainState.Success(it.exists()))
+                close()
+            }
+            .addOnFailureListener {
+                trySend(MainState.Error(it.message.toString()))
+                close()
+            }
+        awaitClose {
+            close()
+        }
+    }
+
+    override fun getCartProduct(): Flow<MainState<List<CartModel>>> = callbackFlow {
+        trySend(MainState.Loading)
+        val listner = getCartRef().addSnapshotListener { snapshots, error ->
+            if(error != null){
+                trySend(MainState.Error(error.message.toString()))
+                return@addSnapshotListener
+            }
+            val data = snapshots?.documents?.mapNotNull {
+                val cart = it.toObject(CartModel::class.java)
+                cart?.productId = it.id
+                cart
+            } ?: emptyList()
+
+            trySend(MainState.Success(data))
+        }
+        awaitClose {
+            close()
+        }
+
+    }
+
+    override fun updateUserInfo(userModel: userModel): Flow<MainState<String>> = callbackFlow {
+
+    }
+
+    override fun changeUserImage(imageUri: Uri): Flow<MainState<String>> = callbackFlow {
 
     }
 

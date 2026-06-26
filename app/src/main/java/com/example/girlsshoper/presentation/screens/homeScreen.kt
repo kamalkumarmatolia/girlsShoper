@@ -58,7 +58,6 @@ import com.example.girlsshoper.domain.module.bannerPostsModel
 import com.example.girlsshoper.domain.module.categoryModel
 import com.example.girlsshoper.domain.module.productModel
 import com.example.girlsshoper.presentation.components.card.categoryCard
-import com.example.girlsshoper.presentation.components.card.eachProductViewCard
 import com.example.girlsshoper.presentation.components.card.productHomeShowCard
 import com.example.girlsshoper.presentation.components.eventSlider
 import com.example.girlsshoper.presentation.components.texture.outlineTextFieldComponent
@@ -171,8 +170,8 @@ fun homeScreen(
                     productHomeShowCard(
                         imageUrl = it.imageUrl,
                         productTitle = it.productTitle,
-                        productFinalPrice = it.finalPrice,
-                        productPrice = it.price,
+                        productFinalPrice = it.finalPrice.toString(),
+                        productPrice = it.price.toString(),
                         wenderName = it.wenderName,
                         onClick = {
                             val id = it.productId

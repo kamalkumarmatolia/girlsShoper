@@ -6,18 +6,19 @@ import androidx.lifecycle.viewModelScope
 import com.example.girlsshoper.comman.MainState
 import com.example.girlsshoper.comman.getAllCategoryTYpe
 import com.example.girlsshoper.comman.getAllProductType
-import com.example.girlsshoper.comman.getBannerPostsType
-import com.example.girlsshoper.comman.getProductByCategoryType
+import com.example.girlsshoper.comman.getCartProductType
 import com.example.girlsshoper.comman.getProductByIDType
 import com.example.girlsshoper.comman.getSpacUserByIdType
+import com.example.girlsshoper.comman.isProductinCartorNotType
 import com.example.girlsshoper.comman.loadhomeScreenType
 import com.example.girlsshoper.comman.loginWithEmailPassType
 import com.example.girlsshoper.comman.registerUserTYpe
+import com.example.girlsshoper.comman.remove_upsertCartProductType
 import com.example.girlsshoper.comman.searchCategoryType
 import com.example.girlsshoper.comman.searchProductType
-import com.example.girlsshoper.domain.module.categoryModel
-import com.example.girlsshoper.domain.module.productModel
+import com.example.girlsshoper.domain.module.CartModel
 import com.example.girlsshoper.domain.module.userModel
+import com.example.girlsshoper.domain.useCase.CartUseCase
 import com.example.girlsshoper.domain.useCase.GetAllCategoryUseCase
 import com.example.girlsshoper.domain.useCase.GetAllProductUseCase
 import com.example.girlsshoper.domain.useCase.GetBannerPostUseCase
@@ -29,7 +30,6 @@ import com.example.girlsshoper.domain.useCase.RegisterUserUseCase
 import com.example.girlsshoper.domain.useCase.SearchCategoryUseCase
 import com.example.girlsshoper.domain.useCase.SearchProductUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,7 +51,8 @@ class myVIewModel @Inject constructor(
     private val SearchProductUseCase : SearchProductUseCase,
     private val GetBannerPostUseCase : GetBannerPostUseCase,
     private val SearchCategoryUseCase : SearchCategoryUseCase,
-    private val GetProductByCategoryUseCase : GetProductByCategoryUseCase
+    private val GetProductByCategoryUseCase : GetProductByCategoryUseCase,
+    private val CartUseCase : CartUseCase
 
 
     ) : ViewModel(){
@@ -76,9 +76,18 @@ class myVIewModel @Inject constructor(
     val searchProductState = _searchProductState.asStateFlow()
     private val _searchCategoryState = MutableStateFlow(searchCategoryType())
     val searchCategoryState = _searchCategoryState.asStateFlow()
-
     private val _getProductByCategorystate = MutableStateFlow(getAllProductType())
     val getProductByCategorystate = _getProductByCategorystate.asStateFlow()
+    private val _addtoCartState = MutableStateFlow(remove_upsertCartProductType())
+    val addtoCartState = _addtoCartState.asStateFlow()
+    private val _removeFromCartState = MutableStateFlow(remove_upsertCartProductType())
+    val removeFromCartState = _removeFromCartState.asStateFlow()
+    private val _updateCartQuantityState = MutableStateFlow(remove_upsertCartProductType())
+    val updateCartQuantityState = _updateCartQuantityState.asStateFlow()
+    private val _isProductinCartorNotState = MutableStateFlow(isProductinCartorNotType())
+    val isProductinCartorNotState = _isProductinCartorNotState.asStateFlow()
+    private val _getCartProductState = MutableStateFlow(getCartProductType())
+    val getCartProductState = _getCartProductState.asStateFlow()
 
 
 
@@ -232,6 +241,66 @@ class myVIewModel @Inject constructor(
             }
         }
     }
+
+    fun addtoCartVModel(cartModel: CartModel){
+        viewModelScope.launch {
+            CartUseCase.addtoCartUseCase(cartModel = cartModel).collectLatest {
+                when(it){
+                    is MainState.Loading -> {_addtoCartState.value = remove_upsertCartProductType(isLoading = true) }
+                    is MainState.Success -> {_addtoCartState.value = remove_upsertCartProductType(isData = it.data) }
+                    is MainState.Error -> {_addtoCartState.value = remove_upsertCartProductType(isError = it.message) }
+                }
+            }
+        }
+    }
+    fun removeFromCartVModel(productid : String){
+        viewModelScope.launch {
+            CartUseCase.removeFromCartUseCase(productid = productid).collectLatest {
+                when(it){
+                    is MainState.Loading -> {_removeFromCartState.value = remove_upsertCartProductType(isLoading = true) }
+                    is MainState.Success -> {_removeFromCartState.value = remove_upsertCartProductType(isData = it.data) }
+                    is MainState.Error -> {_removeFromCartState.value = remove_upsertCartProductType(isError = it.message) }
+                }
+            }
+        }
+    }
+    fun updateCartQuantityVModel(productid : String, increase : Boolean){
+        viewModelScope.launch {
+            CartUseCase.updateCartQuantityUseCase(productid = productid, increase = increase).collectLatest {
+                when(it){
+                    is MainState.Loading -> {_updateCartQuantityState.value = remove_upsertCartProductType(isLoading = true) }
+                    is MainState.Success -> {_updateCartQuantityState.value = remove_upsertCartProductType(isData = it.data) }
+                    is MainState.Error -> {_updateCartQuantityState.value = remove_upsertCartProductType(isError = it.message) }
+                }
+            }
+        }
+    }
+
+    fun isProductinCartorNotVModel(productid : String){
+        viewModelScope.launch {
+            CartUseCase.isProductinCartorNotUseCase(productid = productid).collectLatest {
+                when(it){
+                    is MainState.Loading -> {_isProductinCartorNotState.value = isProductinCartorNotType(isLoading = true) }
+                    is MainState.Success -> {_isProductinCartorNotState.value = isProductinCartorNotType(isData = it.data) }
+                    is MainState.Error -> {_isProductinCartorNotState.value = isProductinCartorNotType(isError = it.message) }
+                }
+            }
+        }
+    }
+
+    fun getCartProductVModel(){
+        viewModelScope.launch {
+            CartUseCase.getCartProductUseCase().collectLatest {
+                when(it){
+                    is MainState.Loading -> {_getCartProductState.value = getCartProductType(isLoading = true) }
+                    is MainState.Success -> {_getCartProductState.value = getCartProductType(isData = it.data) }
+                    is MainState.Error -> {_getCartProductState.value = getCartProductType(isError = it.message) }
+                }
+            }
+        }
+    }
+
+
 
     val _searchQuery = MutableStateFlow("")
     val _categorySearchQuery = MutableStateFlow("")
